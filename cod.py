@@ -4,9 +4,9 @@ import numpy as np
 import plotly.graph_objects as go
 from io import BytesIO
 
-# --------------------------------------------------
+# ==================================================
 # CONFIGURACIÓN
-# --------------------------------------------------
+# ==================================================
 
 st.set_page_config(
     page_title="Políticas Públicas en Economía Cerrada",
@@ -14,9 +14,9 @@ st.set_page_config(
     layout="wide"
 )
 
-# --------------------------------------------------
-# FUNCIONES ECONÓMICAS
-# --------------------------------------------------
+# ==================================================
+# FUNCIONES
+# ==================================================
 
 def equilibrio(a, b, c, d):
     pe = (a - c) / (b + d)
@@ -50,26 +50,26 @@ def exportar_excel(df, nombre):
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-# --------------------------------------------------
+# ==================================================
 # PORTADA
-# --------------------------------------------------
+# ==================================================
 
 st.title("📈 Políticas Públicas en Economía Cerrada")
 
 st.markdown("""
 ### Economía para Ingenieros - UNSTA
 
-**Trabajo Práctico Nº 2**
+**Trabajo Práctico N° 2**
 
-**Integrantes**
+### Integrantes
 - Amparo Ruiz
 - Candelaria López Avila
-- Luz Maria Ponce de Leon 
+- Luz María Ponce de León
 """)
 
-# --------------------------------------------------
+# ==================================================
 # TABS
-# --------------------------------------------------
+# ==================================================
 
 tab1, tab2, tab3, tab4 = st.tabs([
     "🚍 Subsidios",
@@ -79,7 +79,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 # ==================================================
-# TAB 1 SUBSIDIOS
+# TAB 1 - SUBSIDIOS
 # ==================================================
 
 with tab1:
@@ -98,9 +98,9 @@ with tab1:
 
     s = st.slider(
         "Subsidio por viaje",
-        0,
-        50,
-        8
+        min_value=0,
+        max_value=50,
+        value=8
     )
 
     pe, qe = equilibrio(a, b, c, d)
@@ -124,53 +124,37 @@ with tab1:
     gasto = s * qf
 
     bt1 = ec1 + ep1 - gasto
+
     variacion = bt1 - bt0
-
-st.subheader("Bienestar Social")
-
-col_b1, col_b2, col_b3 = st.columns(3)
-
-col_b1.metric(
-    "Bienestar Inicial",
-    f"{bt0:.2f}"
-)
-
-col_b2.metric(
-    "Bienestar Final",
-    f"{bt1:.2f}"
-)
-
-col_b3.metric(
-    "Variación",
-    f"{variacion:.2f}",
-    delta=f"{variacion:.2f}"
-)
 
     st.subheader("Resultados")
 
     c1, c2, c3, c4 = st.columns(4)
 
-    c1.metric(
-        "Precio Inicial",
-        f"{pe:.2f}"
+    c1.metric("Precio Inicial", f"{pe:.2f}")
+    c2.metric("Cantidad Inicial", f"{qe:.2f}")
+    c3.metric("Precio Consumidor", f"{pd_cons:.2f}")
+    c4.metric("Cantidad Final", f"{qf:.2f}")
+
+    st.subheader("Bienestar Social")
+
+    b1, b2, b3 = st.columns(3)
+
+    b1.metric(
+        "Bienestar Inicial",
+        f"{bt0:.2f}"
     )
 
-    c2.metric(
-        "Cantidad Inicial",
-        f"{qe:.2f}"
+    b2.metric(
+        "Bienestar Final",
+        f"{bt1:.2f}"
     )
 
-    c3.metric(
-        "Precio Consumidor",
-        f"{pd_cons:.2f}"
+    b3.metric(
+        "Variación",
+        f"{variacion:.2f}",
+        delta=f"{variacion:.2f}"
     )
-
-    c4.metric(
-        "Cantidad Final",
-        f"{qf:.2f}"
-    )
-
-    st.subheader("Bienestar")
 
     df_bienestar = pd.DataFrame({
         "Situación": ["Inicial", "Final"],
@@ -181,29 +165,35 @@ col_b3.metric(
         df_bienestar.set_index("Situación")
     )
 
+    st.subheader("Interpretación Económica")
+
     if bt1 > bt0:
         st.success(
-            "El bienestar social aumenta."
+            "El subsidio incrementa el bienestar social."
         )
     else:
         st.warning(
-            "El bienestar social disminuye."
+            "El costo fiscal supera los beneficios obtenidos."
         )
 
-    st.subheader("Ganadores y Perdedoras")
+    st.subheader("Ganadores y Perdedores")
 
     if ec1 > ec0:
-        st.write("✅ Consumidores ganan")
+        st.write("✅ Los consumidores ganan.")
 
     if ep1 > ep0:
-        st.write("✅ Productores ganan")
+        st.write("✅ Los productores ganan.")
 
     if gasto > 0:
-        st.write("❌ El Estado incurre en gasto fiscal")
+        st.write("❌ El Estado incurre en gasto fiscal.")
 
     st.subheader("Curvas de Mercado")
 
-    precios = np.linspace(0, po_prod * 1.8, 300)
+    precios = np.linspace(
+        0,
+        max(po_prod * 1.8, pe * 2),
+        300
+    )
 
     demanda = a - b * precios
     oferta = c + d * precios
@@ -287,24 +277,24 @@ col_b3.metric(
     )
 
 # ==================================================
-# TAB 2 PRECIO MÁXIMO
+# TAB 2 - PRECIO MÁXIMO
 # ==================================================
 
 with tab2:
 
     st.header("Precio Máximo a los Alquileres")
 
-    pmax = st.slider(
-        "Precio Máximo",
-        10,
-        100,
-        40
-    )
-
     a2 = 1800
     b2 = 20
     c2 = 0
     d2 = 12
+
+    pmax = st.slider(
+        "Precio Máximo",
+        min_value=10,
+        max_value=100,
+        value=40
+    )
 
     pe, qe = equilibrio(
         a2,
@@ -312,9 +302,22 @@ with tab2:
         c2,
         d2
     )
-ec0 = excedente_consumidor(a2, b2, pe, qe)
-ep0 = excedente_productor(c2, d2, pe, qe)
-bt0 = ec0 + ep0
+
+    ec0 = excedente_consumidor(
+        a2,
+        b2,
+        pe,
+        qe
+    )
+
+    ep0 = excedente_productor(
+        c2,
+        d2,
+        pe,
+        qe
+    )
+
+    bt0 = ec0 + ep0
 
     qd = a2 - b2 * pmax
     qo = c2 + d2 * pmax
@@ -323,103 +326,103 @@ bt0 = ec0 + ep0
         qd - qo,
         0
     )
-cantidad_transada = min(qd, qo)
 
-ec1 = ((a2 / b2) - pmax) * cantidad_transada / 2
+    cantidad_transada = min(
+        qd,
+        qo
+    )
 
-ep1 = (
-    (pmax - (-c2 / d2))
-    * cantidad_transada
-    / 2
-)
+    ec1 = (
+        ((a2 / b2) - pmax)
+        * cantidad_transada
+        / 2
+    )
 
-bt1 = ec1 + ep1
+    ep1 = (
+        (pmax - (-c2 / d2))
+        * cantidad_transada
+        / 2
+    )
 
-variacion = bt1 - bt0
+    bt1 = ec1 + ep1
 
-    col1, col2, col3 = st.columns(3)
+    variacion = bt1 - bt0
 
-    col1.metric(
+    c1, c2_, c3 = st.columns(3)
+
+    c1.metric(
         "Cantidad Demandada",
         f"{qd:.0f}"
     )
 
-    col2.metric(
+    c2_.metric(
         "Cantidad Ofrecida",
         f"{qo:.0f}"
     )
 
-    col3.metric(
+    c3.metric(
         "Escasez",
         f"{escasez:.0f}"
     )
-# --------------------------------------------------
-# EXCEDENTES Y BIENESTAR
-# --------------------------------------------------
 
-ec0 = excedente_consumidor(a2, b2, pe, qe)
-ep0 = excedente_productor(c2, d2, pe, qe)
-bt0 = ec0 + ep0
+    st.subheader("Excedentes")
 
-cantidad_transada = min(qd, qo)
+    e1, e2 = st.columns(2)
 
-ec1 = ((a2 / b2) - pmax) * cantidad_transada / 2
+    with e1:
+        st.metric(
+            "EC Inicial",
+            f"{ec0:.2f}"
+        )
 
-ep1 = (
-    (pmax - (-c2 / d2))
-    * cantidad_transada
-    / 2
-)
+        st.metric(
+            "EP Inicial",
+            f"{ep0:.2f}"
+        )
 
-bt1 = ec1 + ep1
+    with e2:
+        st.metric(
+            "EC Final",
+            f"{ec1:.2f}"
+        )
 
-variacion = bt1 - bt0
+        st.metric(
+            "EP Final",
+            f"{ep1:.2f}"
+        )
 
-st.subheader("Excedentes")
+    st.subheader("Bienestar Social")
 
-col_e1, col_e2 = st.columns(2)
+    w1, w2, w3 = st.columns(3)
 
-with col_e1:
-    st.metric("EC Inicial", f"{ec0:.2f}")
-    st.metric("EP Inicial", f"{ep0:.2f}")
-
-with col_e2:
-    st.metric("EC Final", f"{ec1:.2f}")
-    st.metric("EP Final", f"{ep1:.2f}")
-
-st.subheader("Bienestar Social")
-
-col_w1, col_w2, col_w3 = st.columns(3)
-
-col_w1.metric(
-    "Bienestar Inicial",
-    f"{bt0:.2f}"
-)
-
-col_w2.metric(
-    "Bienestar Final",
-    f"{bt1:.2f}"
-)
-
-col_w3.metric(
-    "Variación",
-    f"{variacion:.2f}",
-    delta=f"{variacion:.2f}"
-)
-
-if escasez > 0:
-    st.warning(
-        "El precio máximo genera escasez en el mercado."
+    w1.metric(
+        "Bienestar Inicial",
+        f"{bt0:.2f}"
     )
-else:
-    st.success(
-        "El precio máximo no genera escasez."
+
+    w2.metric(
+        "Bienestar Final",
+        f"{bt1:.2f}"
     )
-    precios = [70, 60, 50, 40, 30]
+
+    w3.metric(
+        "Variación",
+        f"{variacion:.2f}",
+        delta=f"{variacion:.2f}"
+    )
+
+    if escasez > 0:
+        st.warning(
+            "El precio máximo genera escasez."
+        )
+    else:
+        st.success(
+            "El precio máximo no genera escasez."
+        )
 
     datos = []
 
-    for pm in precios:
+    for pm in [70, 60, 50, 40, 30]:
 
         qd_pm = a2 - b2 * pm
         qo_pm = c2 + d2 * pm
@@ -435,11 +438,13 @@ else:
         datos,
         columns=[
             "Precio Máximo",
-            "Demandada",
-            "Ofrecida",
+            "Cantidad Demandada",
+            "Cantidad Ofrecida",
             "Escasez"
         ]
     )
+
+    st.subheader("Simulación Automática")
 
     st.dataframe(df_pm)
 
@@ -449,7 +454,7 @@ else:
     )
 
 # ==================================================
-# TAB 3 COMPARACIÓN
+# TAB 3 - COMPARACIÓN
 # ==================================================
 
 with tab3:
@@ -471,19 +476,11 @@ with tab3:
     )
 
     pda, poa, qa = subsidio_equilibrio(
-        1500,
-        25,
-        0,
-        15,
-        escenario_a
+        1500, 25, 0, 15, escenario_a
     )
 
     pdb, pob, qb = subsidio_equilibrio(
-        1500,
-        25,
-        0,
-        15,
-        escenario_b
+        1500, 25, 0, 15, escenario_b
     )
 
     comparacion = pd.DataFrame({
@@ -492,19 +489,19 @@ with tab3:
             "Precio Consumidor"
         ],
         "Escenario A": [
-            qa,
-            pda
+            round(qa, 2),
+            round(pda, 2)
         ],
         "Escenario B": [
-            qb,
-            pdb
+            round(qb, 2),
+            round(pdb, 2)
         ]
     })
 
     st.table(comparacion)
 
 # ==================================================
-# TAB 4
+# TAB 4 - ACERCA DEL PROYECTO
 # ==================================================
 
 with tab4:
@@ -514,24 +511,25 @@ with tab4:
     st.markdown("""
 ### Objetivo
 
-Analizar cómo las políticas públicas modifican
-el funcionamiento de los mercados.
+Analizar cómo las políticas públicas afectan
+a consumidores, productores y al bienestar social.
 
 ### Funcionalidades
 
-- Cálculo automático de equilibrios.
-- Análisis de subsidios.
-- Análisis de precios máximos.
+- Equilibrio de mercado.
+- Subsidios.
+- Precio máximo.
 - Excedentes económicos.
 - Bienestar social.
 - Simulación de escenarios.
 - Exportación a Excel.
 
-### Herramientas utilizadas
+### Tecnologías
 
 - Python
 - Streamlit
 - Pandas
 - NumPy
 - Plotly
+- OpenPyXL
 """)
