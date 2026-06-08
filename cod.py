@@ -16,12 +16,12 @@ st.set_page_config(
 st.title("📈 Políticas Públicas en Economía Cerrada")
 st.markdown(
     """
-    **Trabajo Práctico N°2 - Economía para Ingenieros**
+    **Trabajo Práctico - Economía para Ingenieros**
 
     Integrantes:
     - Amparo Ruiz
-    - Candelaria López
-    - Avila
+    - Candelaria López Avila
+    - Luz Maria Ponce de Leon
     """
 )
 
