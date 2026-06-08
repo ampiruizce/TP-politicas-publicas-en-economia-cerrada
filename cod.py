@@ -124,6 +124,27 @@ with tab1:
     gasto = s * qf
 
     bt1 = ec1 + ep1 - gasto
+    variacion = bt1 - bt0
+
+st.subheader("Bienestar Social")
+
+col_b1, col_b2, col_b3 = st.columns(3)
+
+col_b1.metric(
+    "Bienestar Inicial",
+    f"{bt0:.2f}"
+)
+
+col_b2.metric(
+    "Bienestar Final",
+    f"{bt1:.2f}"
+)
+
+col_b3.metric(
+    "Variación",
+    f"{variacion:.2f}",
+    delta=f"{variacion:.2f}"
+)
 
     st.subheader("Resultados")
 
@@ -291,6 +312,9 @@ with tab2:
         c2,
         d2
     )
+ec0 = excedente_consumidor(a2, b2, pe, qe)
+ep0 = excedente_productor(c2, d2, pe, qe)
+bt0 = ec0 + ep0
 
     qd = a2 - b2 * pmax
     qo = c2 + d2 * pmax
@@ -299,6 +323,19 @@ with tab2:
         qd - qo,
         0
     )
+cantidad_transada = min(qd, qo)
+
+ec1 = ((a2 / b2) - pmax) * cantidad_transada / 2
+
+ep1 = (
+    (pmax - (-c2 / d2))
+    * cantidad_transada
+    / 2
+)
+
+bt1 = ec1 + ep1
+
+variacion = bt1 - bt0
 
     col1, col2, col3 = st.columns(3)
 
@@ -316,7 +353,68 @@ with tab2:
         "Escasez",
         f"{escasez:.0f}"
     )
+# --------------------------------------------------
+# EXCEDENTES Y BIENESTAR
+# --------------------------------------------------
 
+ec0 = excedente_consumidor(a2, b2, pe, qe)
+ep0 = excedente_productor(c2, d2, pe, qe)
+bt0 = ec0 + ep0
+
+cantidad_transada = min(qd, qo)
+
+ec1 = ((a2 / b2) - pmax) * cantidad_transada / 2
+
+ep1 = (
+    (pmax - (-c2 / d2))
+    * cantidad_transada
+    / 2
+)
+
+bt1 = ec1 + ep1
+
+variacion = bt1 - bt0
+
+st.subheader("Excedentes")
+
+col_e1, col_e2 = st.columns(2)
+
+with col_e1:
+    st.metric("EC Inicial", f"{ec0:.2f}")
+    st.metric("EP Inicial", f"{ep0:.2f}")
+
+with col_e2:
+    st.metric("EC Final", f"{ec1:.2f}")
+    st.metric("EP Final", f"{ep1:.2f}")
+
+st.subheader("Bienestar Social")
+
+col_w1, col_w2, col_w3 = st.columns(3)
+
+col_w1.metric(
+    "Bienestar Inicial",
+    f"{bt0:.2f}"
+)
+
+col_w2.metric(
+    "Bienestar Final",
+    f"{bt1:.2f}"
+)
+
+col_w3.metric(
+    "Variación",
+    f"{variacion:.2f}",
+    delta=f"{variacion:.2f}"
+)
+
+if escasez > 0:
+    st.warning(
+        "El precio máximo genera escasez en el mercado."
+    )
+else:
+    st.success(
+        "El precio máximo no genera escasez."
+    )
     precios = [70, 60, 50, 40, 30]
 
     datos = []
