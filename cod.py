@@ -63,22 +63,8 @@ st.markdown("""
 
 **Integrantes**
 - Amparo Ruiz
-- Candelaria López
-- Avila
-
-La aplicación permite analizar:
-
-✅ Equilibrios de mercado
-
-✅ Subsidios
-
-✅ Precios máximos
-
-✅ Excedentes económicos
-
-✅ Bienestar social
-
-✅ Simulación de escenarios
+- Candelaria López Avila
+- Luz Maria Ponce de Leon 
 """)
 
 # --------------------------------------------------
